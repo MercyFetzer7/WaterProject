@@ -15,14 +15,25 @@ namespace WaterProject.API.Controllers
         {
             _waterContext = temp;
         }
-        
+
         // public WaterController(WaterDbContext temp) => _waterContext = temp; (lambda function)
 
         [HttpGet("AllProjects")] // routing to get to this action
-        public IEnumerable<Project> GetProjects()
+        public IActionResult GetProjects(int pageHowMany = 10, int pageNum = 1)
         {
-            var something = _waterContext.Projects.ToList();
-            return something;
+            var something = _waterContext.Projects
+                .Skip((pageNum - 1) * pageHowMany) // skip number of records
+                .Take(pageHowMany) // display the number you want
+                .ToList();
+
+            var totalNumProjects = _waterContext.Projects.Count();
+
+            var someObject = new
+            {
+                Projects = something,
+                TotalNumProjects = totalNumProjects
+            };
+            return Ok(someObject);
         }
 
         [HttpGet("FunctionalProjects")]
