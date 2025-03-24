@@ -12,7 +12,11 @@ function ProjectList() {
     // this gets the data from the API
     useEffect(() => {
         const fetchProjects = async () => {
-            const response = await fetch(`https://localhost:5000/water/AllProjects?pageHowMany=${pageSize}&pageNum=${pageNum}`);
+            const response = await fetch(`https://localhost:5000/water/AllProjects?pageHowMany=${pageSize}&pageNum=${pageNum}`, 
+                {
+                    credentials: "include",
+                }
+            );
             const data = await response.json();
             setProjects(data.projects)
             setTotalItems(data.totalNumProjects)
