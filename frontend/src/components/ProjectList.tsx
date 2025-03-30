@@ -1,34 +1,38 @@
 import { useEffect, useState } from "react";
 import { Project } from '../types/Project' // connects to the Project.ts file
 import { useNavigate } from "react-router-dom";
+import { fetchProjects } from "../api/ProjectsAPI";
+import Pagination from "./Pagination";
 
 function ProjectList({selectedCategories}: {selectedCategories: string[]}) {
 
     const[projects, setProjects] = useState<Project[]>([]);
     const [pageSize, setPageSize] = useState<number>(10);
     const[pageNum, setPageNum] = useState<number>(1);
-    const [totalItems, setTotalItems] = useState<number>(0);
     const [totalPages, setTotalPages] = useState<number>(0);
     const navigate = useNavigate();
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
 
     // this gets the data from the API
     useEffect(() => {
-        const fetchProjects = async () => {
-            const categoryParams = selectedCategories.map((cat) => `projectTypes=${encodeURIComponent(cat)}`).join('&');
-
-
-            const response = await fetch(`https://localhost:5000/water/AllProjects?pageHowMany=${pageSize}&pageNum=${pageNum}${selectedCategories.length ? `&${categoryParams}` : ''}`,
-                {
-                    credentials: "include",
-                }
-            );
-            const data = await response.json();
-            setProjects(data.projects)
-            setTotalItems(data.totalNumProjects)
-            setTotalPages(Math.ceil(totalItems/pageSize));
+        const loadProjects = async () => {
+            try {
+                setLoading(true);
+                const data = await fetchProjects(pageSize, pageNum, selectedCategories)
+                setProjects(data.projects)
+                setTotalPages(Math.ceil(data.totalNumProjects/pageSize));
+            } catch (error) {
+                setError((error as Error).message);
+            } finally {
+                setLoading(false);
+            }
         };
-        fetchProjects();
-    }, [pageSize, pageNum, totalItems, selectedCategories]);
+        loadProjects();
+    }, [pageSize, pageNum, selectedCategories]);
+
+    if (loading) return <p>Loading projects...</p>
+    if (error) return <p className="text-red-500">Error: (error)</p>
 
     return(
         <>
@@ -46,28 +50,8 @@ function ProjectList({selectedCategories}: {selectedCategories: string[]}) {
                         <button className="btn btn-success" onClick={() => navigate(`/donate/${p.projectName}/${p.projectId}`) }>Donate</button>
                     </div>
                 </div>
-        )}  
-
-        <button disabled={pageNum === 1} onClick={() => setPageNum(pageNum - 1)}>Previous</button>
-        
-        {/* builds an array of the number of pages; acts as a for loop */}
-        {[...Array(totalPages)].map((_, index) => (
-            <button key={index + 1} onClick={() => setPageNum(index + 1)} disabled={pageNum === index + 1}>
-                {index + 1}
-            </button>
-        ))}
-
-        <button disabled={pageNum === totalPages} onClick={() => setPageNum(pageNum + 1)}>Next</button>
-
-        <br />
-        <label>
-            Results per page:
-            <select value={pageSize} onChange={(p) => {setPageSize(Number(p.target.value)); setPageNum(1)}}>
-                <option value='5'>5</option>
-                <option value='10'>10</option>
-                <option value='20'>20</option>
-            </select>
-        </label>   
+        )}
+        <Pagination currentPage={pageNum} totalPages={totalPages} pageSize={pageSize} onPageChange={setPageNum} onPageSizeChange={(newSize) => {setPageSize(newSize); setPageNum(1);}}/>
         </>
     );
 }
