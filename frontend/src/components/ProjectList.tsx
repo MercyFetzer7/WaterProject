@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Project } from './types/Project' // connects to the Project.ts file
+import { Project } from '../types/Project' // connects to the Project.ts file
+import { useNavigate } from "react-router-dom";
 
 function ProjectList({selectedCategories}: {selectedCategories: string[]}) {
 
@@ -8,6 +9,7 @@ function ProjectList({selectedCategories}: {selectedCategories: string[]}) {
     const[pageNum, setPageNum] = useState<number>(1);
     const [totalItems, setTotalItems] = useState<number>(0);
     const [totalPages, setTotalPages] = useState<number>(0);
+    const navigate = useNavigate();
 
     // this gets the data from the API
     useEffect(() => {
@@ -41,6 +43,7 @@ function ProjectList({selectedCategories}: {selectedCategories: string[]}) {
                             <li><strong>Project Phase:</strong> {p.projectPhase}</li>
                             <li><strong>Project Status:</strong> {p.projectFunctionalityStatus}</li>
                         </ul>
+                        <button className="btn btn-success" onClick={() => navigate(`/donate/${p.projectName}/${p.projectId}`) }>Donate</button>
                     </div>
                 </div>
         )}  
