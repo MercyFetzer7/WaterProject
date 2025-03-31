@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000")
+            policy.WithOrigins("http://localhost:3000", "https://calm-wave-01c7e301e.6.azurestaticapps.net")
                 .AllowCredentials()
                 .AllowAnyHeader()
                 .AllowAnyMethod();

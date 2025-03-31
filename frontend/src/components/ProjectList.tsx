@@ -32,7 +32,7 @@ function ProjectList({selectedCategories}: {selectedCategories: string[]}) {
     }, [pageSize, pageNum, selectedCategories]);
 
     if (loading) return <p>Loading projects...</p>
-    if (error) return <p className="text-red-500">Error: (error)</p>
+    if (error) return <p className="text-red-500">Error: {error}</p>
 
     return(
         <>
